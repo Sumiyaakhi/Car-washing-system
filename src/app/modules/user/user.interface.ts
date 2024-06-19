@@ -1,4 +1,6 @@
-export type TUser = {
+import { Model, ObjectId } from "mongoose";
+
+export interface TUser {
   // id: string;
   name: string;
   email: string;
@@ -6,5 +8,18 @@ export type TUser = {
   phone: string;
   role: "admin" | "user";
   address: string;
-  isDeleted: boolean;
+}
+
+//
+export type TLoginUser = {
+  email: string;
+  password: string;
 };
+
+export interface UserModel extends Model<TUser> {
+  isUserExists(email: string): Promise<TUser>;
+  isPasswordMatched(
+    plainTextPassword: string,
+    hashedPassword: string
+  ): Promise<boolean>;
+}

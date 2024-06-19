@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
-import { UserService } from "./user.service";
+import { UserServices } from "./user.service";
 import { Request, Response } from "express";
 
 // const createUser = catchAsync(async (req, res) => {
@@ -20,10 +20,11 @@ import { Request, Response } from "express";
 const createUser = async (req: Request, res: Response) => {
   try {
     const user = req.body;
-    const result = await UserService.createUserIntoDB(user);
+    const result = await UserServices.createUserIntoDB(user);
 
     res.status(200).json({
       success: true,
+      statusCode: httpStatus.OK,
       message: "User registered successfully",
       data: result,
     });
@@ -31,6 +32,18 @@ const createUser = async (req: Request, res: Response) => {
     console.log(err);
   }
 };
+
+const loginUser = catchAsync(async (req, res) => {
+  const result = await UserServices.loginUser(req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User logged in successfully!",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
+  loginUser,
 };

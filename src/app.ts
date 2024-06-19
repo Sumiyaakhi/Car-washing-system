@@ -11,16 +11,16 @@ app.use(cors());
 
 // application routes
 app.use("/api", router);
-const test = (req: Request, res: Response) => {
-  const a = 10;
-  res.send(a);
-};
+// const test = (req: Request, res: Response) => {
+//   const a = 10;
+//   res.send(a);
+// };
 
-app.get("/", test);
+// app.get("/", test);
 
-// app.use(globalErrorHandler);
+app.use(globalErrorHandler);
 
-// //Not Found
-// app.use(notFound);
+//Not Found
+app.use(notFound);
 
 export default app;
