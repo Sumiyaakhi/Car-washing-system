@@ -36,9 +36,10 @@ const createUser = async (req: Request, res: Response) => {
 const loginUser = catchAsync(async (req, res) => {
   const result = await UserServices.loginUser(req.body);
   sendResponse(res, {
-    statusCode: httpStatus.OK,
     success: true,
+    statusCode: httpStatus.OK,
     message: "User logged in successfully!",
+    // token,
     data: result,
   });
 });
