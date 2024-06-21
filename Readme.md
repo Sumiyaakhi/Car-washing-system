@@ -6,10 +6,16 @@
   (https://assignment-2-sand-two.vercel.app/
   )and after that paste on the postman or any other sites.
 
-- Then you should be added api/products or api/orders for the others route name like
-  (https://assignment-2-sand-two.vercel.app/api/products)
-  (https://assignment-2-sand-two.vercel.app/api/orders )
+- Then you should be added api/auth, api/services, api/slots, api/bookings or api/my-bookings for the others route name like
+  (https://assignment-2-sand-two.vercel.app/api/auth)
+  (https://assignment-2-sand-two.vercel.app/api/services )
+  (https://assignment-2-sand-two.vercel.app/api/slots )
+  (https://assignment-2-sand-two.vercel.app/api/bookings )
+  (https://assignment-2-sand-two.vercel.app/api/my-bookings )
 
 - After using this route , you can see the database's data and also can get, post, put, delete from CRUD operation.
+
+- And if you sign in as a role for admin, you can access the admin routes from the database using token(add Bearer in front of token in Authorization in header part).
+- If u want to sign in as a user, then as like admin you also have to authenticate by using token(add Bearer in front of token in Authorization in header part).
 
 ....................Thank You.................
