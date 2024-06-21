@@ -1,11 +1,12 @@
-import { Slot } from "../service/service.model";
+import { Service, Slot } from "../service/service.model";
 import { Booking } from "./bookings.model";
 import { User } from "../user/user.model";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../../config";
+import { TBooking } from "./bookings.interface";
 
 const createBookingIntoDB = async (
-  bookingData: any,
+  payload: TBooking,
   authorizationHeader: any
 ) => {
   const {
@@ -16,24 +17,27 @@ const createBookingIntoDB = async (
     vehicleModel,
     manufacturingYear,
     registrationPlate,
-  } = bookingData;
+  } = payload;
 
   // Verify and decode the JWT token
-  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer")) {
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
     throw new Error("Authorization token is missing or invalid");
   }
 
-  const token = authorizationHeader.split(" ")[1]; // Extract the token part after "Bearer "
+  const token = authorizationHeader.split(" ")[1];
   let loggedInUserId;
   try {
-    const decodedToken = jwt.verify(token, config.jwt_access_secret as string); // Use your secret key here
-    loggedInUserId = decodedToken.sub; // Assuming the user ID is stored in the "sub" field
+    const decodedToken = jwt.verify(
+      token,
+      config.jwt_access_secret as string
+    ) as JwtPayload;
+    loggedInUserId = decodedToken.sub;
   } catch (err) {
     throw new Error("Invalid token");
   }
 
   // Find the slot
-  const slot = await Slot.findById(slotId).populate("service");
+  const slot = await Slot.findById(slotId);
   if (!slot) {
     throw new Error("Slot not found");
   }
@@ -43,36 +47,58 @@ const createBookingIntoDB = async (
     throw new Error("Slot is already booked or canceled");
   }
 
+  // Find the service
+  const service = await Service.findById(serviceId);
+  if (!service) {
+    throw new Error("Service not found");
+  }
+
   // Find the customer (logged-in user)
   const customer = await User.findById(loggedInUserId);
   if (!customer) {
     throw new Error("Customer not found");
   }
+  const { name, email, _id, phone, address } = customer;
 
-  // Create a new booking
-  const booking = await Booking.create({
-    customer: loggedInUserId,
-    service: serviceId,
-    slot: slotId,
+  const result = {
+    _id,
+    customer: {
+      _id,
+      name: name,
+      email: email,
+      phone,
+      address,
+    },
+    service: {
+      _id: service._id,
+      name: service.name,
+      description: service.description,
+      price: service.price,
+      duration: service.duration,
+      isDeleted: service.isDeleted,
+    },
+    slot: {
+      _id: slot._id,
+      service: slot.service,
+      date: slot.date,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      isBooked: slot.isBooked,
+    },
     vehicleType,
     vehicleBrand,
     vehicleModel,
     manufacturingYear,
     registrationPlate,
-  });
+  };
+  // Create a new booking
+  const booking = await Booking.create(result);
 
   // Update the slot status to booked
   slot.isBooked = "booked";
   await slot.save();
 
-  // Populate the booking with related data
-  await booking
-    .populate("customer")
-    .populate("service")
-    .populate("slot")
-    .execPopulate();
-
-  return booking;
+  return result;
 };
 
 const getAllBookingsFromDB = async () => {
