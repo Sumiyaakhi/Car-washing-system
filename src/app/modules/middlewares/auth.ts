@@ -30,10 +30,11 @@ const auth = (...requiredRoles: TUserRole[]) => {
       const role = (decoded as JwtPayload).role;
 
       if (requiredRoles && !requiredRoles.includes(role)) {
-        throw new AppError(
-          httpStatus.FORBIDDEN,
-          "You do not have access to this resource!"
-        );
+        return res.status(httpStatus.NOT_FOUND).json({
+          success: false,
+          statusCode: httpStatus.UNAUTHORIZED,
+          message: "You have no access to this route",
+        });
       }
 
       req.user = decoded as JwtPayload;
