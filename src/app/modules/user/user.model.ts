@@ -49,6 +49,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// set '' after saving password
+userSchema.post("save", function (doc, next) {
+  doc.password = "";
+  next();
+});
+
 userSchema.statics.isUserExists = async function (email: string) {
   return await this.findOne({ email }).select("+password");
 };

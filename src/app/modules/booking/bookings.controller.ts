@@ -5,7 +5,11 @@ import { BookingServices } from "./bookings.service";
 import { Request, Response } from "express";
 
 const createBooking = catchAsync(async (req, res) => {
-  const result = await BookingServices.createBookingIntoDB(req.body);
+  const authorizationHeader = req.headers.authorization;
+  const result = await BookingServices.createBookingIntoDB(
+    req.body,
+    authorizationHeader
+  );
 
   sendResponse(res, {
     success: true,
