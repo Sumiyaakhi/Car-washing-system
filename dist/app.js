@@ -1,27 +1,25 @@
 "use strict";
-// const app: Application = express();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// //parsers
-// app.use(express.json());
-// app.use(cors());
-// // application routes
-// app.use("/api/v1", router);
+const cors_1 = __importDefault(require("cors"));
+const express_1 = __importDefault(require("express"));
+const routes_1 = __importDefault(require("./app/modules/routes"));
+const globalErrorhandler_1 = __importDefault(require("./app/modules/middlewares/globalErrorhandler"));
+const notFound_1 = __importDefault(require("./app/modules/middlewares/notFound"));
+const app = (0, express_1.default)();
+// parser
+app.use(express_1.default.json());
+app.use((0, cors_1.default)());
+// application routes
+app.use("/api", routes_1.default);
 // const test = (req: Request, res: Response) => {
 //   const a = 10;
 //   res.send(a);
 // };
 // app.get("/", test);
-// app.use(globalErrorHandler);
-// //Not Found
-// app.use(notFound);
-// export default app;
-const express_1 = __importDefault(require("express"));
-const app = (0, express_1.default)();
-const port = 3000;
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-});
+app.use(globalErrorhandler_1.default);
+//Not Found
+app.use(notFound_1.default);
 exports.default = app;

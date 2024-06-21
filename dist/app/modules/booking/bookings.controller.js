@@ -12,38 +12,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserControllers = void 0;
+exports.BookingControllers = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
-const user_service_1 = require("./user.service");
-const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = req.body;
-        const password = user.password;
-        const result = yield user_service_1.UserServices.createUserIntoDB(password, user);
-        res.status(200).json({
-            success: true,
-            statusCode: http_status_1.default.OK,
-            message: "User registered successfully",
-            data: result,
-        });
-    }
-    catch (err) {
-        console.log(err);
-    }
-});
-const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserServices.loginUser(req.body);
-    const { token } = result;
+const bookings_service_1 = require("./bookings.service");
+const createBooking = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authorizationHeader = req.headers.authorization;
+    const result = yield bookings_service_1.BookingServices.createBookingIntoDB(req.body, authorizationHeader);
     res.status(200).json({
         success: true,
         statusCode: http_status_1.default.OK,
-        message: "User logged in successfully!",
-        token,
-        data: result.user,
+        message: "Booking successful",
+        data: result,
     });
 }));
-exports.UserControllers = {
-    createUser,
-    loginUser,
+const getAllBookings = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const bookings = yield bookings_service_1.BookingServices.getAllBookingsFromDB();
+    res.status(200).json({
+        status: http_status_1.default.OK,
+        message: "All bookings retrieved successfully",
+        success: true,
+        data: bookings,
+    });
+}));
+exports.BookingControllers = {
+    createBooking,
+    getAllBookings,
 };
