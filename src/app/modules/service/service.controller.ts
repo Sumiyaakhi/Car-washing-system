@@ -19,6 +19,7 @@ const getServiceById = catchAsync(async (req: Request, res: Response) => {
   const service = await ServiceServices.getServiceById(serviceId);
   res.status(200).json({
     status: httpStatus.OK,
+    message: "Service retrieved successfully",
     success: true,
     data: service,
   });
@@ -27,8 +28,9 @@ const getServiceById = catchAsync(async (req: Request, res: Response) => {
 const getAllServices = catchAsync(async (req: Request, res: Response) => {
   const services = await ServiceServices.getAllServices();
   res.status(200).json({
-    status: httpStatus.OK,
     success: true,
+    status: httpStatus.OK,
+    message: "Services retrieved successfully",
     data: services,
   });
 });
@@ -38,8 +40,8 @@ const updateService = catchAsync(async (req: Request, res: Response) => {
   const updatedData = req.body;
   const service = await ServiceServices.updateService(serviceId, updatedData);
   res.status(200).json({
-    status: httpStatus.OK,
     success: true,
+    status: httpStatus.OK,
     message: "Service updated successfully",
     data: service,
   });
