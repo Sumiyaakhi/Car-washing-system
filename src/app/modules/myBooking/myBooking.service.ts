@@ -1,4 +1,6 @@
+import httpStatus from "http-status";
 import config from "../../config";
+import AppError from "../../error/AppError";
 import { Booking } from "../booking/bookings.model";
 import { User } from "../user/user.model";
 import jwt, { JwtPayload } from "jsonwebtoken";
