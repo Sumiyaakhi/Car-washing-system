@@ -10,7 +10,7 @@ const getAvailableSlots = catchAsync(async (req: Request, res: Response) => {
     res.status(httpStatus.BAD_REQUEST).json({
       success: false,
       statusCode: httpStatus.BAD_REQUEST,
-      message: "Date and serviceId query parameters are required",
+      message: "Date and serviceId query parameters are  required",
     });
     return;
   }
@@ -28,55 +28,28 @@ const getAvailableSlots = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// const getSlotByIdHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { id } = req.params;
-//     const slot = await Slot.findById(id).populate("service");
-//     if (!slot) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Slot not found" });
-//     }
-//     res.status(200).json({
-//       success: true,
-//       message: "Slot retrieved successfully",
-//       data: slot,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+const createSelectedSlot = catchAsync(async (req: Request, res: Response) => {
+  const selectedSlotData = req.body;
+  const selectedSlot = await SlotServices.createSelectedSlot(selectedSlotData);
+  res.status(200).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Selected Slot created successfully",
+    data: selectedSlot,
+  });
+});
 
-// const updateSlotHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { id } = req.params;
-//     const updates = req.body;
-//     const updatedSlot = await Slot.findByIdAndUpdate(id, updates, {
-//       new: true,
-//     });
-//     if (!updatedSlot) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Slot not found" });
-//     }
-//     res.status(200).json({
-//       success: true,
-//       message: "Slot updated successfully",
-//       data: updatedSlot,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
+const getAllSelectedSlots = catchAsync(async (req: Request, res: Response) => {
+  const selectedSlots = await SlotServices.getAllSelectedSlots();
+  res.status(200).json({
+    success: true,
+    status: httpStatus.OK,
+    message: "Selected  Slots retrieved successfully",
+    data: selectedSlots,
+  });
+});
 export const SlotController = {
   getAvailableSlots,
+  createSelectedSlot,
+  getAllSelectedSlots,
 };

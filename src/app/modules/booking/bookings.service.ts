@@ -4,8 +4,9 @@ import { User } from "../user/user.model";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../../config";
 import { TBooking } from "./bookings.interface";
+import { initiatePayment } from "../payment/payment.utils";
 
-const createBookingIntoDB = async (
+export const createBookingIntoDB = async (
   payload: TBooking,
   authorizationHeader: any
 ) => {
@@ -20,7 +21,7 @@ const createBookingIntoDB = async (
   } = payload;
 
   // Verify and decode the JWT token
-  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+  if (!authorizationHeader) {
     throw new Error("Authorization token is missing or invalid");
   }
 
@@ -60,45 +61,65 @@ const createBookingIntoDB = async (
   }
   const { name, email, _id, phone, address } = customer;
 
-  const result = {
-    _id,
+  const bookingDetails = {
+    tran_id: `tran_${Date.now()}`,
+    amount: service.price,
     customer: {
-      _id,
-      name: name,
-      email: email,
+      name,
+      email,
       phone,
       address,
     },
-    service: {
-      _id: service._id,
-      name: service.name,
-      description: service.description,
-      price: service.price,
-      duration: service.duration,
-      isDeleted: service.isDeleted,
-    },
-    slot: {
-      _id: slot._id,
-      service: slot.service,
-      date: slot.date,
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      isBooked: slot.isBooked,
-    },
-    vehicleType,
-    vehicleBrand,
-    vehicleModel,
-    manufacturingYear,
-    registrationPlate,
   };
-  // Create a new booking
-  const booking = await Booking.create(result);
 
-  // Update the slot status to booked
-  slot.isBooked = "booked";
-  await slot.save();
+  // Initiate payment
+  const paymentResponse = await initiatePayment(bookingDetails);
 
-  return result;
+  // Only proceed if the payment is successful
+  if (paymentResponse.status === "SUCCESS") {
+    const result = {
+      _id,
+      customer: {
+        _id,
+        name,
+        email,
+        phone,
+        address,
+      },
+      service: {
+        _id: service._id,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        duration: service.duration,
+        isDeleted: service.isDeleted,
+      },
+      slot: {
+        _id: slot._id,
+        service: slot.service,
+        date: slot.date,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        isBooked: "booked", // Ensure this reflects the new status
+      },
+      vehicleType,
+      vehicleBrand,
+      vehicleModel,
+      manufacturingYear,
+      registrationPlate,
+    };
+
+    // Create a new booking
+    const booking = await Booking.create(result);
+
+    // Update the slot status to booked
+    slot.isBooked = "booked";
+    await slot.save();
+
+    return result;
+  } else {
+    throw new Error("Payment failed. Booking was not created.");
+  }
 };
 
 const getAllBookingsFromDB = async () => {

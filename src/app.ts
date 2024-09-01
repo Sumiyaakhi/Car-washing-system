@@ -1,26 +1,29 @@
 import cors from "cors";
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import router from "./app/modules/routes";
 import globalErrorHandler from "./app/modules/middlewares/globalErrorhandler";
 import notFound from "./app/modules/middlewares/notFound";
+
 const app: Application = express();
 
-// parser
+// Middleware for parsing JSON requests
 app.use(express.json());
-app.use(cors());
 
-// application routes
+// CORS configuration to allow requests from the frontend
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from this origin
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
+
+// Application routes
 app.use("/api", router);
-// const test = (req: Request, res: Response) => {
-//   const a = 10;
-//   res.send(a);
-// };
 
-// app.get("/", test);
-
+// Global error handler middleware
 app.use(globalErrorHandler);
 
-//Not Found
+// Middleware for handling 404 - Not Found
 app.use(notFound);
 
 export default app;

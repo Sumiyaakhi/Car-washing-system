@@ -86,6 +86,13 @@ const createSlots = async (slotData: TSlot) => {
   return slots;
 };
 
+const getServiceSlotById = async (id: string) => {
+  const serviceSlot = await Slot.findById(id);
+  if (!serviceSlot) {
+    throw new AppError(httpStatus.NOT_FOUND, "serviceSlot not found");
+  }
+  return serviceSlot;
+};
 export const ServiceServices = {
   createService,
   getServiceById,
@@ -93,4 +100,5 @@ export const ServiceServices = {
   updateService,
   deleteServiceFromDB,
   createSlots,
+  getServiceSlotById,
 };
