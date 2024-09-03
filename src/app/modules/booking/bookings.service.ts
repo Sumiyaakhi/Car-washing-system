@@ -1,16 +1,11 @@
 import { Service, Slot } from "../service/service.model";
 import { Booking } from "./bookings.model";
-import { User } from "../user/user.model";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import config from "../../config";
 import { TBooking } from "./bookings.interface";
 import { initiatePayment } from "../payment/payment.utils";
 
-export const createBookingIntoDB = async (
-  payload: TBooking,
-  authorizationHeader: any
-) => {
+export const createBookingIntoDB = async (payload: TBooking) => {
   const {
+    customer,
     serviceId,
     slotId,
     vehicleType,
@@ -20,21 +15,15 @@ export const createBookingIntoDB = async (
     registrationPlate,
   } = payload;
 
-  // Verify and decode the JWT token
-  if (!authorizationHeader) {
-    throw new Error("Authorization token is missing or invalid");
-  }
-
-  const token = authorizationHeader.split(" ")[1];
-  let loggedInUserId;
-  try {
-    const decodedToken = jwt.verify(
-      token,
-      config.jwt_access_secret as string
-    ) as JwtPayload;
-    loggedInUserId = decodedToken.sub;
-  } catch (err) {
-    throw new Error("Invalid token");
+  // Check for customer info completeness
+  if (
+    !customer ||
+    !customer.name ||
+    !customer.email ||
+    !customer.phone ||
+    !customer.address
+  ) {
+    throw new Error("Customer information is incomplete");
   }
 
   // Find the slot
@@ -54,37 +43,31 @@ export const createBookingIntoDB = async (
     throw new Error("Service not found");
   }
 
-  // Find the customer (logged-in user)
-  const customer = await User.findById(loggedInUserId);
-  if (!customer) {
-    throw new Error("Customer not found");
-  }
-  const { name, email, _id, phone, address } = customer;
-
+  // Prepare booking details
+  const tran_id = `trans_${Date.now()}`;
   const bookingDetails = {
-    tran_id: `tran_${Date.now()}`,
+    tran_id,
     amount: service.price,
     customer: {
-      name,
-      email,
-      phone,
-      address,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      address: customer.address,
     },
   };
 
   // Initiate payment
-  const paymentResponse = await initiatePayment(bookingDetails);
+  const { status, paymentUrl } = await initiatePayment(bookingDetails);
 
   // Only proceed if the payment is successful
-  if (paymentResponse.status === "SUCCESS") {
+  if (status === 200) {
+    // Prepare the result object for booking
     const result = {
-      _id,
       customer: {
-        _id,
-        name,
-        email,
-        phone,
-        address,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        address: customer.address,
       },
       service: {
         _id: service._id,
@@ -100,13 +83,14 @@ export const createBookingIntoDB = async (
         date: slot.date,
         startTime: slot.startTime,
         endTime: slot.endTime,
-        isBooked: "booked", // Ensure this reflects the new status
+        isBooked: "booked",
       },
       vehicleType,
       vehicleBrand,
       vehicleModel,
       manufacturingYear,
       registrationPlate,
+      tran_id,
     };
 
     // Create a new booking
@@ -116,12 +100,14 @@ export const createBookingIntoDB = async (
     slot.isBooked = "booked";
     await slot.save();
 
-    return result;
+    // Return the booking including the generated _id
+    return { ...result, _id: booking._id, paymentUrl };
   } else {
     throw new Error("Payment failed. Booking was not created.");
   }
 };
 
+// Function to get all bookings from the database
 const getAllBookingsFromDB = async () => {
   const bookings = await Booking.find();
   return bookings;

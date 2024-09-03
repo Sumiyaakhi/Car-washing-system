@@ -7,8 +7,10 @@ import config from "../../config";
 import { TUserRole } from "../user/user.interface";
 
 const auth = (...requiredRoles: TUserRole[]) => {
+  // console.log(...requiredRoles);
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authorizationHeader = req.headers.authorization;
+    // console.log("Authorization header =", authorizationHeader);
     if (!authorizationHeader) {
       throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
     }

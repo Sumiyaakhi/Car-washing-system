@@ -4,6 +4,7 @@ import { User } from "./user.model";
 import AppError from "../../error/AppError";
 import jwt from "jsonwebtoken";
 import config from "../../config";
+import { createToken, verifyToken } from "./user.utils";
 
 const createUserIntoDB = async (password: string, payload: TUser) => {
   // Check if user already exists
@@ -37,16 +38,54 @@ const loginUser = async (payload: TLoginUser) => {
     expiresIn: "10d",
   });
 
+  const refreshToken = createToken(
+    jwtPayload,
+    config.jwt_refresh_secret as string,
+    config.jwt_refresh_expires_in as string
+  );
   // Return user details excluding password
   const { password, ...userWithoutPassword } = user.toObject();
 
   return {
     token,
+    refreshToken,
     user: userWithoutPassword,
+  };
+};
+
+const refreshToken = async (token: string) => {
+  // checking if the given token is valid
+  const decoded = verifyToken(token, config.jwt_refresh_secret as string);
+
+  const { email, iat } = decoded;
+
+  // checking if the user is exist
+  const user = await User.isUserExists(email);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
+  }
+  // checking if the user is already deleted
+  const isDeleted = user?.isDeleted;
+
+  if (isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, "This user is deleted !");
+  }
+
+  const jwtPayload = { role: user.role };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string
+  );
+  return {
+    accessToken,
   };
 };
 
 export const UserServices = {
   createUserIntoDB,
   loginUser,
+  refreshToken,
 };

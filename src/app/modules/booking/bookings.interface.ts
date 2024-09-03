@@ -4,7 +4,6 @@ import { Model, ObjectId } from "mongoose";
 export interface TBooking {
   //   customer: ObjectId;
   _id: ObjectId;
-  customerId: ObjectId;
   serviceId: ObjectId;
   slotId: ObjectId;
   customer: object;
@@ -15,6 +14,8 @@ export interface TBooking {
   vehicleModel: string;
   manufacturingYear: number;
   registrationPlate: string;
+  tran_id: string;
+  paymentStatus: string;
 }
 
 // Slot Document Interface

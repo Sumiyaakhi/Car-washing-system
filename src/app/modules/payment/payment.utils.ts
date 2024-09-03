@@ -8,9 +8,9 @@ export const initiatePayment = async (bookingDetails: any) => {
       store_id: process.env.STORE_ID,
       signature_key: process.env.SIGNATURE_KEY,
       tran_id: bookingDetails.tran_id,
-      success_url: "http://www.merchantdomain.com/successpage.html",
-      fail_url: "http://www.merchantdomain.com/failedpage.html",
-      cancel_url: "http://www.merchantdomain.com/cancelpage.html",
+      success_url: `http://localhost:5000/api/payment/confirmation?tran_id=${bookingDetails.tran_id}&status=success`,
+      fail_url: `http://localhost:5000/api/payment/confirmation?status=failed`,
+      cancel_url: "http://localhost:5173/",
       amount: bookingDetails.amount,
       currency: "BDT",
       desc: "Service Booking Payment",
@@ -22,11 +22,28 @@ export const initiatePayment = async (bookingDetails: any) => {
       cus_phone: bookingDetails.customer.phone,
       type: "json",
     });
+    const paymentUrl = response.data?.payment_url;
 
+    if (!paymentUrl) {
+      throw new Error("Payment URL not found in response");
+    }
     console.log(response.data);
-    return response.data;
+    return { status: response.status, paymentUrl };
   } catch (error) {
     console.error("Payment initiation failed:", error);
     throw new Error("Payment initiation failed");
   }
+};
+
+export const verifyPament = async (tnxId: string) => {
+  const response = await axios.get(process.env.PAYMENT_VERIFY_URL!, {
+    params: {
+      store_id: process.env.STORE_ID,
+      signature_key: process.env.SIGNATURE_KEY,
+      type: "json",
+      request_id: tnxId,
+    },
+  });
+
+  return response.data;
 };

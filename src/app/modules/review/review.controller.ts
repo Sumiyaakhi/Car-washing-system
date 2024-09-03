@@ -5,24 +5,32 @@ import { RevieweServices } from "./review.service";
 
 const createReview = catchAsync(async (req: Request, res: Response) => {
   const reviewData = req.body;
-  console.log("Received review data:", reviewData);
-  const review = await RevieweServices.createReview(reviewData);
-  console.log("Created review:", review);
+  const authorizationHeader = req.headers.authorization as string;
 
-  if (!review) {
-    return res.status(500).json({
+  try {
+    const result = await RevieweServices.createReview(
+      reviewData,
+      authorizationHeader
+    );
+
+    console.log("Created review:", result);
+
+    res.status(200).json({
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Review created successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error creating review:", error);
+
+    res.status(500).json({
       success: false,
       statusCode: httpStatus.INTERNAL_SERVER_ERROR,
       message: "Failed to create review",
+      error: error,
     });
   }
-
-  res.status(200).json({
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Review created successfully",
-    data: review,
-  });
 });
 
 const getAllReviews = catchAsync(async (req: Request, res: Response) => {

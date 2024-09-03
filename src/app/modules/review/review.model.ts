@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 import { TReview } from "./review.interface";
 
 const reviewSchema = new Schema<TReview>(
@@ -10,6 +10,9 @@ const reviewSchema = new Schema<TReview>(
     review: {
       type: String,
       required: true,
+    },
+    user: {
+      type: Object(),
     },
   },
   {

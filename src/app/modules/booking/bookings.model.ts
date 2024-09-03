@@ -3,13 +3,10 @@ import { TBooking } from "./bookings.interface";
 
 const BookingSchema = new Schema<TBooking>(
   {
-    _id: {
-      type: Schema.Types.ObjectId,
-    },
-    customerId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
+    // _id: {
+    //   type: Schema.Types.ObjectId,
+    // },
+
     serviceId: {
       type: Schema.Types.ObjectId,
       ref: "Service",
@@ -48,6 +45,15 @@ const BookingSchema = new Schema<TBooking>(
     registrationPlate: {
       type: String,
       required: true,
+    },
+    tran_id: {
+      type: String,
+      required: true,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid", "Failed"],
+      default: "Pending",
     },
   },
   { timestamps: true }

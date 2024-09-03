@@ -4,4 +4,5 @@ export type TReview = {
   id: ObjectId;
   rating: number;
   review: string;
+  user: ObjectId;
 };

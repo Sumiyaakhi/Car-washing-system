@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
 import { Request, Response } from "express";
+import config from "../../config";
 
 const createUser = async (req: Request, res: Response) => {
   try {
@@ -24,15 +25,35 @@ const createUser = async (req: Request, res: Response) => {
 const loginUser = catchAsync(async (req, res) => {
   const result = await UserServices.loginUser(req.body);
   const { token } = result;
+  const user = result.user;
+  const { refreshToken } = result;
+  console.log(refreshToken);
+  res.cookie("refreshToken", refreshToken, {
+    secure: config.NODE_ENV === "production",
+    httpOnly: true,
+  });
   res.status(200).json({
     success: true,
     statusCode: httpStatus.OK,
     message: "User logged in successfully!",
     token,
-    data: result.user,
+    data: user,
+  });
+});
+
+const refreshToken = catchAsync(async (req, res) => {
+  const { refreshToken } = req.cookies;
+  const result = await UserServices.refreshToken(refreshToken);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Access token is retrieved succesfully!",
+    data: result,
   });
 });
 export const UserControllers = {
   createUser,
   loginUser,
+  refreshToken,
 };

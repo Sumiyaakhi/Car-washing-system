@@ -10,6 +10,8 @@ export interface TUser {
   img: string;
   role: "admin" | "user";
   address: string;
+  isDeleted: boolean;
+  refreshToken: number;
 }
 
 //
