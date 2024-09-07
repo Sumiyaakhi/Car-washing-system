@@ -2,7 +2,7 @@ import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import config from "../../config";
 
 const createUser = async (req: Request, res: Response) => {
@@ -52,8 +52,61 @@ const refreshToken = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const users = await UserServices.getAllUsers();
+    return res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Controller to update a user's role
+const updateUserRole = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userId } = req.params; // Get userId from route parameters
+    const { role } = req.body; // Get new role from request body
+
+    const updatedUser = await UserServices.updateUserRole(userId, role);
+
+    return res.status(200).json({
+      success: true,
+      message: "User role updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    next(error); // Pass the error to the error handler
+  }
+};
+const updateUserInfo = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  // Get user ID from URL parameters
+  const updatedData = req.body; // Get updated data from request body
+
+  // Call the service to update user information
+  const user = await UserServices.updateUserInfo(userId, updatedData);
+
+  // If user is found and updated, send a successful response
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "User updated successfully",
+    data: user, // Return the updated user data
+  });
+});
+
 export const UserControllers = {
   createUser,
   loginUser,
   refreshToken,
+  getAllUsers,
+  updateUserRole,
+  updateUserInfo,
 };

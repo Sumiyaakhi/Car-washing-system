@@ -26,8 +26,30 @@ const refreshTokenValidationSchema = z.object({
   }),
 });
 
+export const updateUserRoleValidationSchema = z.object({
+  body: z
+    .object({
+      role: z.enum(["user", "admin"], {
+        required_error: "Role is required",
+      }),
+    })
+    .optional(),
+});
+const updateUserValidationSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().email().optional(),
+  password: z.string().min(8).optional(),
+  phone: z.string().min(10).optional(),
+  img: z.string().optional(),
+  role: z.enum(["admin", "user"]).optional(),
+  address: z.string().min(1).optional(),
+  isDeleted: z.boolean().optional(),
+});
+
 export const userValidation = {
   createUserValidationSchema,
   loginValidationSchema,
   refreshTokenValidationSchema,
+  updateUserRoleValidationSchema,
+  updateUserValidationSchema,
 };

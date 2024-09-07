@@ -65,12 +65,6 @@ const refreshToken = async (token: string) => {
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
   }
-  // checking if the user is already deleted
-  const isDeleted = user?.isDeleted;
-
-  if (isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, "This user is deleted !");
-  }
 
   const jwtPayload = { role: user.role };
 
@@ -84,8 +78,41 @@ const refreshToken = async (token: string) => {
   };
 };
 
+const getAllUsers = async () => {
+  const users = await User.find({});
+  return users;
+};
+
+// Update a user's role by userId
+const updateUserRole = async (userId: String, newRole: "admin" | "user") => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.role = newRole;
+  await user.save();
+  return user;
+};
+const updateUserInfo = async (id: string, updatedData: Partial<TUser>) => {
+  const user = await User.findByIdAndUpdate(id, updatedData, {
+    new: true, // Return the updated user
+    runValidators: true, // Ensure validation is run on the updated data
+  });
+
+  // If no user is found, throw a "User not found" error
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return user; // Return the updated user data
+};
+
 export const UserServices = {
   createUserIntoDB,
   loginUser,
   refreshToken,
+  getAllUsers,
+  updateUserRole,
+  updateUserInfo,
 };

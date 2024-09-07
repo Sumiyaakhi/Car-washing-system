@@ -1,3 +1,5 @@
+import httpStatus from "http-status";
+import AppError from "../../error/AppError";
 import { TSlot } from "../service/service.interface";
 import { Slot } from "../service/service.model";
 import { SelectedSlot } from "./slot.model";
@@ -20,9 +22,25 @@ const getAllSelectedSlots = async () => {
   const selectedSlotdata = await SelectedSlot.find().populate("service");
   return selectedSlotdata;
 };
+const getAllSlots = async () => {
+  const slots = await Slot.find().populate("service");
+  return slots;
+};
+
+const updateSlot = async (id: string, updatedData: Partial<TSlot>) => {
+  const slot = await Slot.findByIdAndUpdate(id, updatedData, {
+    new: true,
+  });
+  if (!slot) {
+    throw new AppError(httpStatus.NOT_FOUND, "Slot not found");
+  }
+  return slot;
+};
 
 export const SlotServices = {
   getAvailableSlots,
   createSelectedSlot,
   getAllSelectedSlots,
+  getAllSlots,
+  updateSlot,
 };

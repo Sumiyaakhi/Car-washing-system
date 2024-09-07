@@ -48,8 +48,36 @@ const getAllSelectedSlots = catchAsync(async (req: Request, res: Response) => {
     data: selectedSlots,
   });
 });
+
+const getAllSlots = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const slots = await SlotServices.getAllSlots();
+
+    return res.status(200).json({
+      success: true,
+      data: slots,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateSlot = catchAsync(async (req: Request, res: Response) => {
+  const slotId = req.params.id;
+  const updatedData = req.body;
+  const slot = await SlotServices.updateSlot(slotId, updatedData);
+  res.status(200).json({
+    success: true,
+    status: httpStatus.OK,
+    message: "slot updated successfully",
+    data: slot,
+  });
+});
+
 export const SlotController = {
   getAvailableSlots,
   createSelectedSlot,
   getAllSelectedSlots,
+  getAllSlots,
+  updateSlot,
 };

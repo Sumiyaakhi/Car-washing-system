@@ -9,11 +9,13 @@ const router = Router();
 
 router.post(
   "/",
-  auth(USER_ROLE.user),
+
   validateRequest(BookingSchema),
   BookingControllers.createBooking
 );
 
+// router.get("/", auth(USER_ROLE.admin), BookingControllers.getAllBookings);
 router.get("/", auth(USER_ROLE.admin), BookingControllers.getAllBookings);
+router.get("/:email", BookingControllers.getBookingsByEmail);
 
 export const bookingRoutes = router;

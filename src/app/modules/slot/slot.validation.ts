@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const updateSlotValidationSchema = z.object({
+export const updateSlotValidationSchema = z.object({
   service: z
     .string()
     .refine((value) => {

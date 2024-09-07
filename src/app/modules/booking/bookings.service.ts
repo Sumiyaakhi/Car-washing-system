@@ -113,7 +113,13 @@ const getAllBookingsFromDB = async () => {
   return bookings;
 };
 
+const getBookingsByUserEmail = async (email: string) => {
+  const bookings = await Booking.find({ "customer.email": email }).exec();
+  return bookings;
+};
+
 export const BookingServices = {
   createBookingIntoDB,
   getAllBookingsFromDB,
+  getBookingsByUserEmail,
 };

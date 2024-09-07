@@ -36,37 +36,32 @@ const userSchema = new Schema<TUser, UserModel>(
       type: String,
       required: true,
     },
-    isDeleted: {
-      type: Boolean,
-      required: true,
-    },
   },
   {
     timestamps: true,
   }
 );
 
-userSchema.pre("save", async function (next) {
-  const user = this;
-  if (user.isModified("password")) {
-    user.password = await bcrypt.hash(
-      user.password,
+userSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate() as Partial<TUser>;
+
+  // Hash the password if it's being updated and exists in the update data
+  if (update.password) {
+    update.password = await bcrypt.hash(
+      update.password,
       Number(config.bcrypt_salt_rounds)
     );
   }
+
   next();
 });
 
-// set '' after saving password
-userSchema.post("save", function (doc, next) {
-  doc.password = "";
-  next();
-});
-
+// Static method to check if user exists and retrieve password
 userSchema.statics.isUserExists = async function (email: string) {
   return await this.findOne({ email }).select("+password");
 };
 
+// Static method to compare plain text password with hashed password
 userSchema.statics.isPasswordMatched = async function (
   plainTextPassword: string,
   hashedPassword: string
@@ -75,14 +70,3 @@ userSchema.statics.isPasswordMatched = async function (
 };
 
 export const User = model<TUser, UserModel>("User", userSchema);
-
-// const isPasswordMatched = await bcrypt.compare(payload.password, user.password);
-
-// userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
-//   passwordChangedTimestamp: Date,
-//   jwtIssuedTimestamp: number
-// ) {
-//   const passwordChangedTime =
-//     new Date(passwordChangedTimestamp).getTime() / 1000;
-//   return passwordChangedTime > jwtIssuedTimestamp;
-// };
