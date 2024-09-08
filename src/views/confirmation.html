@@ -40,6 +40,25 @@
         font-size: 16px;
         color: #666;
       }
+      .btn {
+        padding: 10px 20px;
+        background-color: #14a0d1;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+      .btn:hover {
+        background-color: #117c9f;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .btn:active {
+        background-color: #0e6781;
+      }
     </style>
   </head>
   <body>
@@ -50,8 +69,8 @@
         Thank you for your transaction. You will receive a confirmation email
         shortly.
       </p>
-      <a href="https://car-washing-system-client.vercel.app/"
-        ><button>Back To Home</button></a
+      <a href="https://car-washing-system-client.vercel.app/" class="btn"
+        >Back To Home</a
       >
     </div>
   </body>

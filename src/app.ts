@@ -16,7 +16,9 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", // Development origin
-      "https://car-washing-system-client.vercel.app", // Production origin
+      "https://car-washing-system-client.vercel.app",
+      "https://assignment-3-sepia-six.vercel.app",
+      // Production origin
     ],
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
