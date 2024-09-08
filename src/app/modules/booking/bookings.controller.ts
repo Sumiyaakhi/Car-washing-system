@@ -4,11 +4,7 @@ import { BookingServices } from "./bookings.service";
 import { Request, Response } from "express";
 
 const createBooking = catchAsync(async (req: Request, res: Response) => {
-  const authorizationHeader = req.headers.authorization as string;
-  const result = await BookingServices.createBookingIntoDB(
-    req.body,
-    authorizationHeader
-  );
+  const result = await BookingServices.createBookingIntoDB(req.body);
 
   res.status(200).json({
     success: true,

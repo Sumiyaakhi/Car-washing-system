@@ -14,7 +14,10 @@ app.use(cookieParser());
 // CORS configuration to allow requests from the frontend
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow requests from this origin
+    origin: [
+      "http://localhost:5173", // Development origin
+      "https://car-washing-system-client.vercel.app", // Production origin
+    ],
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
 );

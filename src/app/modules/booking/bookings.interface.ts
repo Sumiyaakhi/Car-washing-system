@@ -6,7 +6,12 @@ export interface TBooking {
   _id: ObjectId;
   serviceId: ObjectId;
   slotId: ObjectId;
-  customer: object;
+  customer: {
+    name: string;
+    email: string;
+    phone: number;
+    address: string;
+  };
   service: object;
   slot: object;
   vehicleType: string;
